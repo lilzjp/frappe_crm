@@ -113,10 +113,6 @@
               :isSidebarCollapsed="isCollapsed"
               :afterUpgrade="() => capture('upgrade_plan_from_trial_banner')"
             />
-            <GettingStartedBanner
-              v-if="!isOnboardingStepsCompleted"
-              :isSidebarCollapsed="isCollapsed"
-            />
           </div>
           <SidebarItem
             v-if="isManager() && isDemoDataCreated"
@@ -129,7 +125,6 @@
             </template>
           </SidebarItem>
           <SidebarItem
-            v-if="isOnboardingStepsCompleted"
             :label="__('Help')"
             @click="toggleHelpModal"
           >
@@ -161,6 +156,7 @@
       v-model="showHelpModal"
       v-model:articles="articles"
       :logo="CRMLogo"
+      :showOnboarding="false"
       :afterSkip="(step) => capture('onboarding_step_skipped_' + step)"
       :afterSkipAll="() => capture('onboarding_steps_skipped')"
       :afterReset="(step) => capture('onboarding_step_reset_' + step)"
@@ -215,7 +211,6 @@ import { SignupBanner } from '@framework/ui/components/SignupBanner'
 import { TrialBanner } from '@framework/ui/components/TrialBanner'
 import {
   HelpModal,
-  GettingStartedBanner,
   useOnboarding,
   showHelpModal,
   minimize,
@@ -370,7 +365,7 @@ function toggleHelpModal() {
 // onboarding
 const { user } = sessionStore()
 const { users, isManager } = usersStore()
-const { isOnboardingStepsCompleted, setUp } = useOnboarding('frappecrm')
+const { setUp } = useOnboarding('frappecrm')
 const { flushPendingSteps } = useCrmOnboarding()
 
 // The onboarding composable persists the checklist as a positional
@@ -575,7 +570,12 @@ onMounted(async () => {
   // Bring an existing saved checklist in line with the current steps (adds
   // newly introduced steps, preserves completion). No-op when already aligned.
   await reconcileOnboarding(filteredSteps)
+
   setUp(filteredSteps)
+
+  // Hide onboarding help modal by default
+  showHelpModal.value = false
+
   flushPendingSteps()
 })
 
