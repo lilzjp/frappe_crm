@@ -30,6 +30,11 @@ async function getSetupRedirect(to, isAdminUser) {
 
 const routes = [
   {
+    path: '/products',
+    name: 'Products',
+    component: () => import('@/pages/Products.vue'),
+  },
+  {
     path: '/',
     name: 'Home',
   },
